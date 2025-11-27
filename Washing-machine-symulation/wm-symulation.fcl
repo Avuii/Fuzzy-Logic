@@ -1,0 +1,53 @@
+FUNCTION_BLOCK pralka
+
+VAR_INPUT
+    dirtiness  : REAL;   
+    dirt_type : REAL;   
+END_VAR
+
+VAR_OUTPUT
+    wash_time : REAL;   
+END_VAR
+
+FUZZIFY dirtiness
+    TERM small  := (0,1) (50,0);
+    TERM medium := (0,0) (50,1) (100,0);
+    TERM large  := (50,0) (100,1);
+END_FUZZIFY
+
+FUZZIFY dirt_type
+    TERM not_greasy := (0,1) (50,0);
+    TERM medium     := (0,0) (50,1) (100,0);
+    TERM greasy     := (50,0) (100,1);
+END_FUZZIFY
+
+DEFUZZIFY wash_time
+    TERM very_short := (0,1) (5,1) (10,0);
+    TERM short      := (5,0) (15,1) (25,0);
+    TERM medium     := (15,0) (30,1) (45,0);
+    TERM long       := (35,0) (50,1) (60,0);
+    TERM very_long  := (45,0) (60,1);
+    METHOD : COA;
+    DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK Zasady
+    AND : MIN;
+    ACT : MIN;
+    ACCU : MAX;
+
+    RULE 1 : IF dirtiness IS large  AND dirt_type IS greasy      THEN wash_time IS very_long;
+    RULE 2 : IF dirtiness IS medium AND dirt_type IS greasy      THEN wash_time IS long;
+    RULE 3 : IF dirtness IS small  AND dirt_type IS greasy      THEN wash_time IS long;
+
+    RULE 4 : IF dirtiness IS large  AND dirt_type IS medium      THEN wash_time IS long;
+    RULE 5 : IF dirtiness IS medium AND dirt_type IS medium      THEN wash_time IS medium;
+    RULE 6 : IF dirtiness IS small  AND dirt_type IS medium      THEN wash_time IS medium;
+
+    RULE 7 : IF dirtiness IS large  AND dirt_type IS not_greasy  THEN wash_time IS medium;
+    RULE 8 : IF dirtiness IS medium AND dirt_type IS not_greasy  THEN wash_time IS short;
+    RULE 9 : IF dirtiness IS small  AND dirt_type IS not_greasy  THEN wash_time IS very_short;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+

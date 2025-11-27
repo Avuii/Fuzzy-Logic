@@ -1,0 +1,53 @@
+FUNCTION_BLOCK hamowanie
+
+VAR_INPUT
+    odleglosc : REAL;   
+    predkosc  : REAL;
+END_VAR
+
+VAR_OUTPUT
+    hamowanie : REAL;
+END_VAR
+
+
+FUZZIFY odleglosc
+    TERM blisko  := (0, 1) (150, 1) (350, 0);
+    TERM srednio := (250, 0) (400, 1) (600, 1) (750, 0);
+    TERM daleko  := (650, 0) (850, 1) (1000, 1);
+END_FUZZIFY
+
+FUZZIFY predkosc
+    TERM niska   := (0, 1) (25, 1) (40, 0);
+    TERM srednia := (30, 0) (45, 1) (55, 1) (70, 0);
+    TERM wysoka  := (60, 0) (75, 1) (100, 1);
+END_FUZZIFY
+
+
+DEFUZZIFY hamowanie
+    TERM brak       := (0, 1) (0, 1) (10, 0);
+    TERM lagodne    := (5, 0) (20, 1) (35, 1) (45, 0);
+    TERM silne      := (40, 0) (60, 1) (75, 1) (85, 0);
+    TERM awaryjne   := (80, 0) (90, 1) (100, 1);
+    METHOD : COA;
+    DEFAULT := 0;
+END_DEFUZZIFY
+
+
+RULEBLOCK Zasady
+    AND : MIN;
+    ACT : MIN;
+    ACCU : MAX;
+
+    RULE 1 : IF odleglosc IS daleko  AND predkosc IS niska   THEN hamowanie IS brak;
+    RULE 2 : IF odleglosc IS daleko  AND predkosc IS srednia THEN hamowanie IS lagodne;
+    RULE 3 : IF odleglosc IS daleko  AND predkosc IS wysoka  THEN hamowanie IS lagodne;
+
+    RULE 4 : IF odleglosc IS srednio AND predkosc IS niska   THEN hamowanie IS lagodne;
+    RULE 5 : IF odleglosc IS srednio AND predkosc IS srednia THEN hamowanie IS silne;
+    RULE 6 : IF odleglosc IS srednio AND predkosc IS wysoka  THEN hamowanie IS awaryjne;
+
+    RULE 7 : IF odleglosc IS blisko  AND predkosc IS niska   THEN hamowanie IS silne;
+    RULE 8 : IF odleglosc IS blisko  AND predkosc IS srednia THEN hamowanie IS awaryjne;
+    RULE 9 : IF odleglosc IS blisko  AND predkosc IS wysoka  THEN hamowanie IS awaryjne;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
